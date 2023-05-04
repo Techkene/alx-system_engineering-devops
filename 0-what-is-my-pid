@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-# displays PID of self
-echo $$#!/usr/bin/env bash
-# displays PID of self
-echo $$
