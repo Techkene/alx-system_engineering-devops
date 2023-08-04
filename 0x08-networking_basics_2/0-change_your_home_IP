@@ -1,37 +1,32 @@
 #!/usr/bin/env bash
 
-#Check if the script is running with root privileges
+# Check if the script is running with root privileges
 if [[ $EUID -ne 0 ]]; then
     echo "This script must be run as root. Please use sudo or run as root user."
     exit 1
 fi
 
-#Define the mappings for localhost and facebook.com
+# Define the mappings for localhost and facebook.com
 localhost_mapping="127.0.0.2"
 facebook_mapping="8.8.8.8"
 
-#Check if /etc/hosts file exists
-hosts_file="/etc/hosts"
-if [ ! -f "$hosts_file" ]; then
-    echo "Error: $hosts_file not found. Exiting..."
-    exit 1
-fi
+# Function to add or update a mapping in the host file
+update_hosts_mapping() {
+    local ip_address=$1
+    local hostname=$2
+    if grep -q -P "^\s*$ip_address\s+$hostname\s*$" /etc/hosts; then
+        echo "$hostname mapping already exists."
+    else
+        # Add or update the mapping in the host file
+        sed -i "s/^\s*.*$hostname\s*$/\t$ip_address\thostname/" /etc/hosts
+        echo "$hostname mapping added or updated in etc/hosts."
+    fi
+}
 
-#Check if the mappings already exist in the hosts file
-if grep -q -P "^\s*$localhost_mapping\s+localhost\s*$" "$hosts_file"; then
-    echo "localhost mapping already exists."
-else
-    #Add localhost mapping to the hosts file
-    echo -e "$localhost_mapping\tlocalhost" >> "$hosts_file"
-    echo "localhost mapping added to $hosts_file."
-fi
+# Update localhost mapping
+update_hosts_mapping "$localhost_mapping" "localhost"
 
-if grep -q -P "^\s*$facebook_mapping\s+facebook.com\s*$" "$hosts_file"; then
-    echo "facebook.com mapping already exists."
-else
-    #Add facebook.com mapping to the hosts file
-    echo -e "$facebook_mapping\tfacebook.com" >> "$hosts_file"
-    echo "facebook.com mapping added to $hosts_file."
-fi
+# Update facebook.com mapping
+update_hosts_mapping "$facebook_mapping" "facebook.com"
 
 echo "Configuration completed."
