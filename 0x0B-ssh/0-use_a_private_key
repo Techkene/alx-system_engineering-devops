@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 # Connects to server 18.209.224.246 with key in ~/.ssh/school
 
+chmod 600 ~/.ssh/school
 ssh -i ~/.ssh/school ubuntu@18.209.224.246
